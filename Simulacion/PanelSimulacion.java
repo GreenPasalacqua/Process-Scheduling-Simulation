@@ -112,7 +112,7 @@ public class PanelSimulacion extends JPanel {
     private static final String INICIAR = "Iniciar";
     private static final String PAGINAREFERENCIADA = "REFERENCIADA";
 
-    private static final int MILISEGUNDOS_SLEEP = 1000;
+    private static final int MILISEGUNDOS_SLEEP = 300;
     private static final int INICIOCICLO = 0;
     private static final int PROCESOTERMINO = 0;
     private static final int NOINDEXADO = -1;
@@ -659,7 +659,7 @@ public class PanelSimulacion extends JPanel {
             case PID9:
                 return new Color(255, 0, 0);
             case PID10:
-                return new Color(242, 212, 131);
+                return new Color(114, 100, 62);
             case PID11:
                 return new Color(242, 56, 90);
             case PID12:
