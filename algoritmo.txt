@@ -1,0 +1,52 @@
+iterar pasadas con arrayList<Proceso> (mientras !arrayList.isEmpty())
+for(i = 0 hasta arrayList.size())
+	cada pasada
+		pagina en proceso y en sistema
+			resetear r en paginas cargadas
+		para cada proceso
+			generar direccion random
+			calcular pagina
+
+	!cargadaEnMemoria?
+		espacio?
+			cargar pagina en sistema
+			pagina en proceso y en sistema
+				poner cargada en true
+				poner r en 1
+				generar m random
+		si no
+			NRU
+				buscar en sistema menor clase de paginas cargadas en sistema
+					m == 1?
+						guardar en paginacion.txt
+							"Proceso N pagina n"
+					pagina en proceso y en sistema
+						resetear m
+				sacar menor clase de sistema
+					pagina en proceso
+						poner cargada en false
+				cargar pagina nueva en sistema
+					reemplazar con pagina nueva			
+					pagina en proceso y en sistema
+						poner cargada en true
+						poner r en 1
+						generar m random
+
+	si ya está en memoria
+		pagina en proceso y en sistema
+			poner r en 1
+
+	obtener direccion fisica y pagina fisica
+
+	sumar tiempoCPU
+	restar quantum a iteracionesRestantes
+	calcular TE proceso
+
+	proceso terminó?
+		calcular TR proceso
+		limpiar de memoria física y borrar proceso
+			buscar todas las paginas de ese proceso en el sistema y quitarlas
+			quitar proceso de arrayList
+
+cuando termine
+	calcular TE y TR promedio
