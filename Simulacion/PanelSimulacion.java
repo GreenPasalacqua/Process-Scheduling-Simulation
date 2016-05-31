@@ -537,7 +537,7 @@ public class PanelSimulacion extends JPanel {
         }
     }
 
-    public void NRU(int indicePagina) {
+    public void NRU(int indiceProceso) {
         ArrayList<Integer> listaTemporalNRU = new ArrayList<>();
         for (int k = Sistema.NPAGINAS_RESERVADAS_SO; k < Sistema.NPAGINAS; ++k) {
             if (this.sistema.paginas[k].isCargadaEnMemoriaPrincipal()) {
@@ -549,34 +549,34 @@ public class PanelSimulacion extends JPanel {
                 );
             }
         }
-        this.indicesPaginasFisicasProcesos[indicePagina] = listaTemporalNRU.indexOf(
+        this.indicesPaginasFisicasProcesos[indiceProceso] = listaTemporalNRU.indexOf(
                 Collections.min(listaTemporalNRU)
         ) + Sistema.NPAGINAS_RESERVADAS_SO;
 
-        if (this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].getM() == MODIFICADO) {
+        if (this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].getM() == MODIFICADO) {
             try (FileWriter fw = new FileWriter(PATHARCHIVO, true);
                     BufferedWriter bw = new BufferedWriter(fw);
                     PrintWriter pw = new PrintWriter(bw)) {
                 pw.println(
-                        "Proceso: " + this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].getProceso()
-                        + " Página: " + this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].getIndicePaginaProceso()
+                        "Proceso: " + this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].getProceso()
+                        + " Página: " + this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].getIndicePaginaProceso()
                 );
             } catch (IOException e) {
                 e.printStackTrace(System.err);
             }
-            this.arrayListProcesos.get(indicePagina).paginas[this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].getIndicePaginaProceso()].setM(NOMODIFICADO);
-            this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].setM(NOMODIFICADO);
+            this.arrayListProcesos.get(indiceProceso).paginas[this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].getIndicePaginaProceso()].setM(NOMODIFICADO);
+            this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].setM(NOMODIFICADO);
         }
-        this.arrayListProcesos.get(indicePagina).paginas[this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].getIndicePaginaProceso()].setCargadaEnMemoriaPrincipal(false);
-        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].setProceso(this.arrayListProcesos.get(indicePagina).getNombre());
-        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].setIndicePaginaProceso(this.indicesPaginasProcesos[indicePagina]);
-        this.arrayListProcesos.get(indicePagina).paginas[this.indicesPaginasProcesos[indicePagina]].setCargadaEnMemoriaPrincipal(true);
-        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].setCargadaEnMemoriaPrincipal(true);
-        this.arrayListProcesos.get(indicePagina).paginas[this.indicesPaginasProcesos[indicePagina]].setR(REFERENCIADO);
-        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].setR(REFERENCIADO);
+        this.arrayListProcesos.get(indiceProceso).paginas[this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].getIndicePaginaProceso()].setCargadaEnMemoriaPrincipal(false);
+        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].setProceso(this.arrayListProcesos.get(indiceProceso).getNombre());
+        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].setIndicePaginaProceso(this.indicesPaginasProcesos[indiceProceso]);
+        this.arrayListProcesos.get(indiceProceso).paginas[this.indicesPaginasProcesos[indiceProceso]].setCargadaEnMemoriaPrincipal(true);
+        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].setCargadaEnMemoriaPrincipal(true);
+        this.arrayListProcesos.get(indiceProceso).paginas[this.indicesPaginasProcesos[indiceProceso]].setR(REFERENCIADO);
+        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].setR(REFERENCIADO);
         this.bitMRandom = ThreadLocalRandom.current().nextInt(LimiteBitMRandom.INFERIOR.getValor(), LimiteBitMRandom.SUPERIOR.getValor());
-        this.arrayListProcesos.get(indicePagina).paginas[this.indicesPaginasProcesos[indicePagina]].setM(this.bitMRandom);
-        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indicePagina]].setM(this.bitMRandom);
+        this.arrayListProcesos.get(indiceProceso).paginas[this.indicesPaginasProcesos[indiceProceso]].setM(this.bitMRandom);
+        this.sistema.paginas[this.indicesPaginasFisicasProcesos[indiceProceso]].setM(this.bitMRandom);
     }
 
     public static int getClaseNRU(int R, int M) {
@@ -592,19 +592,19 @@ public class PanelSimulacion extends JPanel {
         return -1;
     }
 
-    public void obtenerDireccionYPaginaFisica(int indicePagina) {
-        this.offsetDireccionFisica = this.direccionesProcesos[indicePagina] - (this.indicesPaginasProcesos[indicePagina] * TAMANIOPAGINA_KB * KB_EN_BYTES);
-        this.direccionesFisicasProcesos[indicePagina] = (this.indicesPaginasFisicasProcesos[indicePagina] * TAMANIOPAGINA_KB * KB_EN_BYTES) + this.offsetDireccionFisica;
+    public void obtenerDireccionYPaginaFisica(int indiceProceso) {
+        this.offsetDireccionFisica = this.direccionesProcesos[indiceProceso] - (this.indicesPaginasProcesos[indiceProceso] * TAMANIOPAGINA_KB * KB_EN_BYTES);
+        this.direccionesFisicasProcesos[indiceProceso] = (this.indicesPaginasFisicasProcesos[indiceProceso] * TAMANIOPAGINA_KB * KB_EN_BYTES) + this.offsetDireccionFisica;
     }
 
-    public void actualizarTiempoCPUeIteracionesRestantes(int indicePagina) {
-        this.tiempoCPU += (this.arrayListProcesos.get(indicePagina).iteracionesRestantes - this.quantum >= 0) ? this.quantum : this.arrayListProcesos.get(indicePagina).iteracionesRestantes;
-        this.arrayListProcesos.get(indicePagina).iteracionesRestantes = Math.max(this.arrayListProcesos.get(indicePagina).iteracionesRestantes - this.quantum, 0);
+    public void actualizarTiempoCPUeIteracionesRestantes(int indiceProceso) {
+        this.tiempoCPU += (this.arrayListProcesos.get(indiceProceso).iteracionesRestantes - this.quantum >= 0) ? this.quantum : this.arrayListProcesos.get(indiceProceso).iteracionesRestantes;
+        this.arrayListProcesos.get(indiceProceso).iteracionesRestantes = Math.max(this.arrayListProcesos.get(indiceProceso).iteracionesRestantes - this.quantum, 0);
     }
 
-    public void actualizarDiagramaDeGantt(int indicePagina) {
-        JButton componenteDiagrama = new JButton(this.arrayListProcesos.get(indicePagina).getNombre() + " Pg: " + this.indicesPaginasProcesos[indicePagina] + " T: " + this.mensajeTiempoCPU);
-        componenteDiagrama.setBackground(coloresProcesos(this.arrayListProcesos.get(indicePagina).getNombre()));
+    public void actualizarDiagramaDeGantt(int indiceProceso) {
+        JButton componenteDiagrama = new JButton(this.arrayListProcesos.get(indiceProceso).getNombre() + " Pg: " + this.indicesPaginasProcesos[indiceProceso] + " T: " + this.mensajeTiempoCPU);
+        componenteDiagrama.setBackground(coloresProcesos(this.arrayListProcesos.get(indiceProceso).getNombre()));
         componenteDiagrama.setFont(this.fuenteDiagrama);
         componenteDiagrama.setEnabled(false);
         componenteDiagrama.setFocusPainted(false);
@@ -615,26 +615,26 @@ public class PanelSimulacion extends JPanel {
         );
     }
 
-    public void actualizarMapaTiemposDeEspera(int indicePagina) {
+    public void actualizarMapaTiemposDeEspera(int indiceProceso) {
         this.mapaTiemposDeEspera.put(
-                this.arrayListProcesos.get(indicePagina),
-                this.mapaTiemposDeEspera.get(this.arrayListProcesos.get(indicePagina))
-                + (this.arrayListProcesos.get(indicePagina).tiempoCPUInicio - this.arrayListProcesos.get(indicePagina).tiempoCPUFinal)
+                this.arrayListProcesos.get(indiceProceso),
+                this.mapaTiemposDeEspera.get(this.arrayListProcesos.get(indiceProceso))
+                + (this.arrayListProcesos.get(indiceProceso).tiempoCPUInicio - this.arrayListProcesos.get(indiceProceso).tiempoCPUFinal)
         );
     }
 
-    public void borrarProcesoSiTermino(int indicePagina) {
-        if (arrayListProcesos.get(indicePagina).iteracionesRestantes == PROCESOTERMINO) {
-            mapaTiemposDeRespuesta.put(arrayListProcesos.get(indicePagina), arrayListProcesos.get(indicePagina).tiempoCPUFinal);
+    public void borrarProcesoSiTermino(int indiceProceso) {
+        if (arrayListProcesos.get(indiceProceso).iteracionesRestantes == PROCESOTERMINO) {
+            mapaTiemposDeRespuesta.put(arrayListProcesos.get(indiceProceso), arrayListProcesos.get(indiceProceso).tiempoCPUFinal);
             for (int k = Sistema.NPAGINAS_RESERVADAS_SO; k < Sistema.NPAGINAS; ++k) {
-                if (sistema.paginas[k].getProceso().equals(arrayListProcesos.get(indicePagina).getNombre())) {
-                    arrayListProcesos.get(indicePagina).paginas[sistema.paginas[k].getIndicePaginaProceso()].setCargadaEnMemoriaPrincipal(false);
+                if (sistema.paginas[k].getProceso().equals(arrayListProcesos.get(indiceProceso).getNombre())) {
+                    arrayListProcesos.get(indiceProceso).paginas[sistema.paginas[k].getIndicePaginaProceso()].setCargadaEnMemoriaPrincipal(false);
                     sistema.paginas[k].setCargadaEnMemoriaPrincipal(false);
                     sistema.paginas[k].setProceso("");
                     sistema.paginas[k].setIndicePaginaProceso(NOINDEXADO);
                 }
             }
-            arrayListProcesos.remove(indicePagina);
+            arrayListProcesos.remove(indiceProceso);
         }
     }
 
