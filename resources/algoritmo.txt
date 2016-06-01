@@ -1,5 +1,11 @@
 iterar pasadas con arrayList<Proceso> (mientras !arrayList.isEmpty())
 for(i = 0 hasta arrayList.size())
+	proceso terminó?
+		calcular TR proceso
+		limpiar de memoria física y borrar proceso
+			buscar todas las paginas de ese proceso en el sistema y quitarlas
+			quitar proceso de arrayList e iterar siguiente proceso (continue)
+
 	cada pasada
 		pagina en proceso y en sistema
 			resetear r en paginas cargadas
@@ -41,12 +47,6 @@ for(i = 0 hasta arrayList.size())
 	sumar tiempoCPU
 	restar quantum a iteracionesRestantes
 	calcular TE proceso
-
-	proceso terminó?
-		calcular TR proceso
-		limpiar de memoria física y borrar proceso
-			buscar todas las paginas de ese proceso en el sistema y quitarlas
-			quitar proceso de arrayList
 
 cuando termine
 	calcular TE y TR promedio

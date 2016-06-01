@@ -112,7 +112,7 @@ public class PanelSimulacion extends JPanel {
     private static final String INICIAR = "Iniciar";
     private static final String PAGINAREFERENCIADA = "REFERENCIADA";
 
-    private static final int MILISEGUNDOS_SLEEP = 300;
+    private static final int MILISEGUNDOS_SLEEP = 1000;
     private static final int INICIOCICLO = 0;
     private static final int PROCESOTERMINO = 0;
     private static final int NOINDEXADO = -1;
@@ -193,6 +193,7 @@ public class PanelSimulacion extends JPanel {
     private Sistema sistema;
 
     private boolean hayEspacio;
+    private boolean seBorroUnProceso;
     private int bitMRandom;
     private int offsetDireccionFisica;
 
@@ -263,6 +264,7 @@ public class PanelSimulacion extends JPanel {
         this.sistema = new Sistema();
 
         this.hayEspacio = false;
+        this.seBorroUnProceso = false;
         this.bitMRandom = 0;
         this.offsetDireccionFisica = 0;
 
@@ -340,6 +342,7 @@ public class PanelSimulacion extends JPanel {
                     public Void doInBackground() {
                         botonIniciar.setEnabled(false);
                         while (!arrayListProcesos.isEmpty()) {
+                            seBorroUnProceso = false;
                             for (int i = 0; i < arrayListProcesos.size(); ++i) {
                                 try {
                                     TimeUnit.MILLISECONDS.sleep(MILISEGUNDOS_SLEEP);
@@ -349,7 +352,19 @@ public class PanelSimulacion extends JPanel {
                                 //Actualizar id proceso
                                 mensajeProceso = arrayListProcesos.get(i).getNombre();
 
-                                if (i == INICIOCICLO) {
+                                //Actualizar iteraciones restantes
+                                mensajeIteracionesRestantes = String.valueOf(arrayListProcesos.get(i).iteracionesRestantes);
+
+                                //Si un proceso terminó se elimina y se itera el siguiente proceso
+                                if (arrayListProcesos.get(i).iteracionesRestantes == PROCESOTERMINO) {
+                                    borrarProceso(i);
+                                    --i;
+                                    seBorroUnProceso = true;
+                                    continue;
+                                }
+                                
+                                //Cada pasada...
+                                if (i == INICIOCICLO && !seBorroUnProceso) {
                                     arrayListProcesos.stream().forEach((pr) -> {
                                         for (Pagina pg : pr.getPaginas()) {
                                             if (pg.isCargadaEnMemoriaPrincipal()) {
@@ -396,7 +411,7 @@ public class PanelSimulacion extends JPanel {
                                     } else {
                                         NRU(i);
                                     }
-                                    
+
                                     //Actualizar Pagina Física
                                     mensajePaginaFisica = String.valueOf(indicesPaginasFisicasProcesos[i]);
                                 } else {
@@ -424,16 +439,9 @@ public class PanelSimulacion extends JPanel {
                                 //Actualizar Dirección Física
                                 mensajeDireccionFisica = String.valueOf(direccionesFisicasProcesos[i]);
 
-                                //Actualizar iteraciones restantes
-                                mensajeIteracionesRestantes = String.valueOf(arrayListProcesos.get(i).iteracionesRestantes);
-
                                 arrayListProcesos.get(i).tiempoCPUInicio = tiempoCPU;
 
                                 actualizarTiempoCPUeIteracionesRestantes(i);
-
-                                //Actualizar Quantum y Tiempo CPU
-                                mensajeQuantum = String.valueOf(quantum);
-                                mensajeTiempoCPU = String.valueOf(tiempoCPU);
 
                                 actualizarDiagramaDeGantt(i);
 
@@ -441,7 +449,9 @@ public class PanelSimulacion extends JPanel {
 
                                 arrayListProcesos.get(i).tiempoCPUFinal = tiempoCPU;
 
-                                borrarProcesoSiTermino(i);
+                                //Actualizar Quantum y Tiempo CPU
+                                mensajeQuantum = String.valueOf(quantum);
+                                mensajeTiempoCPU = String.valueOf(tiempoCPU);
 
                                 repaint();
                             }
@@ -453,8 +463,6 @@ public class PanelSimulacion extends JPanel {
                         mapaTiemposDeRespuesta.entrySet().stream().forEach((e) -> {
                             estadisticasTR.accept(e.getValue());
                         });
-                        TEpromedio = df.format(estadisticasTE.getAverage());
-                        TRpromedio = df.format(estadisticasTR.getAverage());
                         return null;
                     }
 
@@ -466,6 +474,10 @@ public class PanelSimulacion extends JPanel {
                         mensajeDireccionFisica = "";
                         mensajePaginaFisica = "";
                         mensajeIteracionesRestantes = "";
+
+                        TEpromedio = df.format(estadisticasTE.getAverage());
+                        TRpromedio = df.format(estadisticasTR.getAverage());
+
                         terminado = true;
 
                         repaint();
@@ -603,7 +615,7 @@ public class PanelSimulacion extends JPanel {
     }
 
     public void actualizarDiagramaDeGantt(int indiceProceso) {
-        JButton componenteDiagrama = new JButton(this.arrayListProcesos.get(indiceProceso).getNombre() + " Pg: " + this.indicesPaginasProcesos[indiceProceso] + " T: " + this.mensajeTiempoCPU);
+        JButton componenteDiagrama = new JButton(this.arrayListProcesos.get(indiceProceso).getNombre() + " Pg: " + this.indicesPaginasProcesos[indiceProceso] + " T: " + this.tiempoCPU);
         componenteDiagrama.setBackground(coloresProcesos(this.arrayListProcesos.get(indiceProceso).getNombre()));
         componenteDiagrama.setFont(this.fuenteDiagrama);
         componenteDiagrama.setEnabled(false);
@@ -623,19 +635,17 @@ public class PanelSimulacion extends JPanel {
         );
     }
 
-    public void borrarProcesoSiTermino(int indiceProceso) {
-        if (arrayListProcesos.get(indiceProceso).iteracionesRestantes == PROCESOTERMINO) {
-            mapaTiemposDeRespuesta.put(arrayListProcesos.get(indiceProceso), arrayListProcesos.get(indiceProceso).tiempoCPUFinal);
-            for (int k = Sistema.NPAGINAS_RESERVADAS_SO; k < Sistema.NPAGINAS; ++k) {
-                if (sistema.paginas[k].getProceso().equals(arrayListProcesos.get(indiceProceso).getNombre())) {
-                    arrayListProcesos.get(indiceProceso).paginas[sistema.paginas[k].getIndicePaginaProceso()].setCargadaEnMemoriaPrincipal(false);
-                    sistema.paginas[k].setCargadaEnMemoriaPrincipal(false);
-                    sistema.paginas[k].setProceso("");
-                    sistema.paginas[k].setIndicePaginaProceso(NOINDEXADO);
-                }
+    public void borrarProceso(int indiceProceso) {
+        mapaTiemposDeRespuesta.put(arrayListProcesos.get(indiceProceso), arrayListProcesos.get(indiceProceso).tiempoCPUFinal);
+        for (int k = Sistema.NPAGINAS_RESERVADAS_SO; k < Sistema.NPAGINAS; ++k) {
+            if (sistema.paginas[k].getProceso().equals(arrayListProcesos.get(indiceProceso).getNombre())) {
+                arrayListProcesos.get(indiceProceso).paginas[sistema.paginas[k].getIndicePaginaProceso()].setCargadaEnMemoriaPrincipal(false);
+                sistema.paginas[k].setCargadaEnMemoriaPrincipal(false);
+                sistema.paginas[k].setProceso("");
+                sistema.paginas[k].setIndicePaginaProceso(NOINDEXADO);
             }
-            arrayListProcesos.remove(indiceProceso);
         }
+        arrayListProcesos.remove(indiceProceso);
     }
 
     public static Color coloresProcesos(String PID) {
@@ -711,6 +721,7 @@ public class PanelSimulacion extends JPanel {
         this.sistema = new Sistema();
 
         this.hayEspacio = false;
+        this.seBorroUnProceso = false;
         this.bitMRandom = 0;
         this.offsetDireccionFisica = 0;
 
