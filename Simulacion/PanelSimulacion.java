@@ -112,7 +112,7 @@ public class PanelSimulacion extends JPanel {
     private static final String INICIAR = "Iniciar";
     private static final String PAGINAREFERENCIADA = "REFERENCIADA";
 
-    private static final int MILISEGUNDOS_SLEEP = 1000;
+    private static final int MILISEGUNDOS_SLEEP = 500;
     private static final int INICIOCICLO = 0;
     private static final int PROCESOTERMINO = 0;
     private static final int NOINDEXADO = -1;
@@ -344,10 +344,6 @@ public class PanelSimulacion extends JPanel {
                         while (!arrayListProcesos.isEmpty()) {
                             seBorroUnProceso = false;
                             for (int i = 0; i < arrayListProcesos.size(); ++i) {
-                                try {
-                                    TimeUnit.MILLISECONDS.sleep(MILISEGUNDOS_SLEEP);
-                                } catch (InterruptedException e) {
-                                }
 
                                 //Actualizar id proceso
                                 mensajeProceso = arrayListProcesos.get(i).getNombre();
@@ -362,7 +358,12 @@ public class PanelSimulacion extends JPanel {
                                     seBorroUnProceso = true;
                                     continue;
                                 }
-                                
+
+                                try {
+                                    TimeUnit.MILLISECONDS.sleep(MILISEGUNDOS_SLEEP);
+                                } catch (InterruptedException e) {
+                                }
+
                                 //Cada pasada...
                                 if (i == INICIOCICLO && !seBorroUnProceso) {
                                     arrayListProcesos.stream().forEach((pr) -> {
